@@ -1,5 +1,7 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class App {
@@ -8,10 +10,11 @@ public class App {
         in = new Scanner(System.in);
         System.out.println("==Task Manager==");
         String menu =
-                "=== Menu ===\n"+
+                "\n=== Menu ===\n"+
                 "1. View Task\n" +
                 "2. Add task\n" +
-                "==============";
+                "3. Mark Task Completed\n" +
+                "==============\n";
 
 
 
@@ -26,6 +29,9 @@ public class App {
                     break;
                 case 2: addTask();
                     break;
+                case 3: markTaskCompleted();
+                    break;
+
             }
             System.out.println(menu);
             System.out.print("Your Option : ");
@@ -34,10 +40,27 @@ public class App {
         }
     }
 
+    private static void markTaskCompleted() {
+        System.out.print("Enter Task Id : ");
+        int id = in.nextInt();
+        in.nextLine();
+        Task.markTaskCompleted(id);
+    }
+
     private static void addTask() {
         System.out.println("Enter task description : ");
-        String description = in.nextLine();
-        Task.addTask(description);
+        String description = null;
+        try {
+            description = in.nextLine();
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        if(description != null){
+            Task.addTask(description);
+        }
+
+
     }
 
     public static void viewTask(){

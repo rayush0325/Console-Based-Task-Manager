@@ -1,11 +1,13 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Task {
-    private static List<Task> taskList;
+    private static Map<Integer,Task> taskMap;
     private static int taskId;
     static {
-        taskList = new ArrayList<>();
+        taskMap = new HashMap<>();
         taskId = 0;
     }
     Task(String description){
@@ -17,20 +19,41 @@ public class Task {
     boolean status;
 
     public static void addTask(String description){
-        taskList.add(new Task(description));
+        Task task = new Task(description);
+        taskMap.put(task.id, task);
         System.out.println("==Task Added Successfully==");
     }
     public static void viewAllTask(){
-        if(taskList.size() == 0){
+        if(taskMap.size() == 0){
             System.out.println("==No Tasks Yet==");
             return;
         }
         System.out.println("==Tasks==");
-        for(Task task : taskList){
-            System.out.println(String.format("Id : %d , Description : %s",task.id , task.description));
+        for(Map.Entry<Integer, Task> entry : taskMap.entrySet()){
+            Task task = entry.getValue();
+            System.out.println(String.format("Id : %d , Description : %s, status : %s",task.id , task.description,
+                    (task.status) ? "completed" : "pending"
+                    ));
+        }
+    }
+
+    public static void markTaskCompleted(int id) {
+        //check if the task with given id is present or not
+        if(!taskMap.containsKey(id)){
+            System.out.println("Task with given id is not present");
+            return;
+        }
+        Task task = taskMap.get(id);
+        if(task.status == true){
+            System.out.println("Task is already completed");
+        }
+        else {
+            task.status = true;
+            System.out.println(String.format("Task : %s is marked completed successfully",task.description));
         }
     }
 }
 //how to generate unique id for an object?
 //currently building the app such that task get deleted once the program closes
 //make variables private
+//what if we want to mark task as incomplete?
