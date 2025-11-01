@@ -39,8 +39,7 @@ public class Task {
 
     public static void markTaskCompleted(int id) {
         //check if the task with given id is present or not
-        if(!taskMap.containsKey(id)){
-            System.out.println("Task with given id is not present");
+        if(!isValidId(id)){
             return;
         }
         Task task = taskMap.get(id);
@@ -52,8 +51,26 @@ public class Task {
             System.out.println(String.format("Task : %s is marked completed successfully",task.description));
         }
     }
+
+    public static void deleteTask(int id) {
+        if(!isValidId(id)){
+            return;
+        }
+        taskMap.remove(id);
+        System.out.println("\n==Task Deleted Successfully==\n");
+
+
+    }
+    private  static boolean isValidId(int id){
+        if (taskMap.containsKey(id)) {
+            return true;
+        }
+        System.out.println("Task with given id is not present");
+        return false;
+    }
 }
 //how to generate unique id for an object?
 //currently building the app such that task get deleted once the program closes
 //make variables private
 //what if we want to mark task as incomplete?
+

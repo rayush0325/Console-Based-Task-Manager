@@ -14,6 +14,7 @@ public class App {
                 "1. View Task\n" +
                 "2. Add task\n" +
                 "3. Mark Task Completed\n" +
+                "4. Delete Task" +
                 "==============\n";
 
 
@@ -31,6 +32,8 @@ public class App {
                     break;
                 case 3: markTaskCompleted();
                     break;
+                case 4: deleteTask();
+                    break;
 
             }
             System.out.println(menu);
@@ -38,6 +41,13 @@ public class App {
             option = in.nextInt();
             in.nextLine();//to clear the buffer
         }
+    }
+
+    private static void deleteTask() {
+        System.out.print("Enter Task Id : ");
+        int id = in.nextInt();
+        in.nextLine();
+        Task.deleteTask(id);
     }
 
     private static void markTaskCompleted() {
@@ -70,5 +80,6 @@ public class App {
 }
 //using scanner in app class
 //handle wrong input by user
+//what about making getIdFromUser function which will check if given id is present or not
 
 
