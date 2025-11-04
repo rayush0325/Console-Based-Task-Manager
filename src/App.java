@@ -26,13 +26,17 @@ public class App {
         in.nextLine();
         while (option != 0){
             switch (option){
-                case 1 : viewTask();
+                case 1 :
+                    viewTask();
                     break;
-                case 2: addTask();
+                case 2:
+                    addTask();
                     break;
-                case 3: markTaskCompleted();
+                case 3:
+//                    markTaskCompleted();
                     break;
-                case 4: deleteTask();
+                case 4:
+//                    deleteTask();
                     break;
 
             }
@@ -41,21 +45,22 @@ public class App {
             option = in.nextInt();
             in.nextLine();//to clear the buffer
         }
+        Task.exit();
     }
 
-    private static void deleteTask() {
-        System.out.print("Enter Task Id : ");
-        int id = in.nextInt();
-        in.nextLine();
-        Task.deleteTask(id);
-    }
+//    private static void deleteTask() {
+//        System.out.print("Enter Task Id : ");
+//        int id = in.nextInt();
+//        in.nextLine();
+//        Task.deleteTask(id);
+//    }
 
-    private static void markTaskCompleted() {
-        System.out.print("Enter Task Id : ");
-        int id = in.nextInt();
-        in.nextLine();
-        Task.markTaskCompleted(id);
-    }
+//    private static void markTaskCompleted() {
+//        System.out.print("Enter Task Id : ");
+//        int id = in.nextInt();
+//        in.nextLine();
+//        Task.markTaskCompleted(id);
+//    }
 
     private static void addTask() {
         System.out.println("Enter task description : ");
