@@ -33,7 +33,7 @@ public class App {
                     addTask();
                     break;
                 case 3:
-//                    markTaskCompleted();
+                    markTaskCompleted();
                     break;
                 case 4:
 //                    deleteTask();
@@ -46,6 +46,7 @@ public class App {
             in.nextLine();//to clear the buffer
         }
         Task.exit();
+
     }
 
 //    private static void deleteTask() {
@@ -55,12 +56,12 @@ public class App {
 //        Task.deleteTask(id);
 //    }
 
-//    private static void markTaskCompleted() {
-//        System.out.print("Enter Task Id : ");
-//        int id = in.nextInt();
-//        in.nextLine();
-//        Task.markTaskCompleted(id);
-//    }
+    private static void markTaskCompleted() {
+        System.out.print("Enter Task Id : ");
+        int id = in.nextInt();
+        in.nextLine();
+        Task.markTaskCompleted(id);
+    }
 
     private static void addTask() {
         System.out.println("Enter task description : ");

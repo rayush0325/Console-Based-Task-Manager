@@ -1,28 +1,27 @@
 import java.io.*;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Task {
-    private static final String filePath = "C:\\ayush\\Programming\\Learning Backend\\TaskManager\\src\\MyTaskFile.txt";
-    private static BufferedReader reader;
-    private static BufferedWriter writer;
-//    private static Map<Integer,Task> taskMap;
+
     private static int taskId;
+    private static  final String username = "root";
+    private static  final String password = "123456";
+    private static  final String url = "jdbc:mysql://127.0.0.1:3306/taskmanagerdatabase";
+    private static  Connection connection ;
 
     static {
-//        taskMap = new HashMap<>();
-//        try{
-//
-//
-//        }catch (Exception e){
-//            System.out.println(e.getMessage());
-//        }
-        taskId = 0;
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+             connection = DriverManager.getConnection(url, username, password);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
     Task(String description){
-        this.id = ++taskId;
         this.description = description;
     }
     int id;
@@ -30,72 +29,72 @@ public class Task {
     boolean status;
 
     public static void addTask(String description){
-        Task task = new Task(description);
-//        taskMap.put(task.id, task);
-        try{
-            writer = new BufferedWriter(new FileWriter(filePath, true));
-            writer.write(String.format("%s,%s,%s", task.id, task.description, (task.status)?"completed":"pending"));
-            writer.newLine();
-            writer.close();
+        String insertQuery = String.format("insert into task (description) values (\"%s\");", description);
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(insertQuery);
+            System.out.println("==Task Added Successfully==");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-        System.out.println("==Task Added Successfully==");
     }
     public static void viewAllTask(){
-//        if(taskMap.size() == 0){
-//            System.out.println("==No Tasks Yet==");
-//            return;
-//        }
+        String viewQuery = "select * from task";
         try {
-            reader = new BufferedReader(new FileReader(filePath));
-            if(reader.readLine() == null){
-                System.out.println("==No Tasks Yet==");
-                return;
-            }
-            System.out.println("==Tasks==");
-            String line = reader.readLine();
-            while (line != null){
-                String[] taskDetail = line.split(",");
-                System.out.println(String.format("Id : %s , Description : %s, status : %s",taskDetail[0] , taskDetail[1], taskDetail[2]));
-                line = reader.readLine();
-            }
-            reader.close();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(viewQuery);
+            while (resultSet.next()){
+                System.out.println(
+                        String.format(
+                                "Id : %d | Desc : %s | Status : %s",
+                                resultSet.getInt("id"),
+                                resultSet.getString("description"),
+                                resultSet.getString("status")
 
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
+                        )
+                );
+            }
+        }catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
-//        for(Map.Entry<Integer, Task> entry : taskMap.entrySet()){
-//            Task task = entry.getValue();
-//
-//        }
     }
 
     public static void exit() {
         try {
-            writer.close();
-        } catch (IOException e) {
+            connection.close();
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-//    public static void markTaskCompleted(int id) {
-//        //check if the task with given id is present or not
-//        if(!isValidId(id)){
-//            return;
-//        }
-//        Task task = taskMap.get(id);
-//        if(task.status == true){
-//            System.out.println("Task is already completed");
-//        }
-//        else {
-//            task.status = true;
-//            System.out.println(String.format("Task : %s is marked completed successfully",task.description));
-//        }
-//    }
+
+    public static void markTaskCompleted(int id) {
+        //check if the task with given id is present or not
+
+        String fetchQuery = String.format("select description, status from task where id = %d", id);
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(fetchQuery);
+            if(!resultSet.next()){
+                System.out.printf("Task with id : %d is absent",id);
+                return;
+            }
+            String status = resultSet.getString("status"), description = resultSet.getString("description");
+            if(status.equals("completed")){
+                System.out.println("Task is already completed");
+                return;
+            }
+
+            String updateQuery = String.format("update task set status = \"completed\" where id = %d", id);
+            statement.executeUpdate(updateQuery);
+            System.out.println(String.format("Task : %s is marked completed successfully",description));
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
 //    public static void deleteTask(int id) {
 //        if(!isValidId(id)){
