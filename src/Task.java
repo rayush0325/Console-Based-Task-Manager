@@ -1,9 +1,6 @@
 import java.io.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Task {
 
@@ -12,8 +9,10 @@ public class Task {
     private static  final String password = "123456";
     private static  final String url = "jdbc:mysql://127.0.0.1:3306/taskmanagerdatabase";
     private static  Connection connection ;
+    private static Scanner in;
 
     static {
+        in = new Scanner(System.in);
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
              connection = DriverManager.getConnection(url, username, password);
@@ -61,6 +60,7 @@ public class Task {
     }
 
     public static void exit() {
+        in.close();
         try {
             connection.close();
         } catch (SQLException e) {
@@ -69,26 +69,30 @@ public class Task {
     }
 
 
-    public static void markTaskCompleted(int id) {
+    public static void changeTaskStatus() {
         //check if the task with given id is present or not
 
-        String fetchQuery = String.format("select description, status from task where id = %d", id);
         try {
+            System.out.print("Enter task id :");
+            int id = in.nextInt();
+            in.nextLine();
             Statement statement = connection.createStatement();
+            String fetchQuery = String.format("select status from task where id = %d", id);
             ResultSet resultSet = statement.executeQuery(fetchQuery);
             if(!resultSet.next()){
-                System.out.printf("Task with id : %d is absent",id);
+                System.out.printf("\n Task with id : %d does not exist",id);
                 return;
             }
-            String status = resultSet.getString("status"), description = resultSet.getString("description");
-            if(status.equals("completed")){
-                System.out.println("Task is already completed");
-                return;
-            }
+            String status = resultSet.getString("status");
 
-            String updateQuery = String.format("update task set status = \"completed\" where id = %d", id);
+            String updateQuery = String.format("update task set status = \"%s\" where id = %d",
+                    (status.equals("completed") ? "pending" : "completed"),
+                    id
+                    );
             statement.executeUpdate(updateQuery);
-            System.out.println(String.format("Task : %s is marked completed successfully",description));
+            System.out.println("Status changed successfully");
+
+
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -96,15 +100,79 @@ public class Task {
 
     }
 
-//    public static void deleteTask(int id) {
-//        if(!isValidId(id)){
-//            return;
-//        }
-//        taskMap.remove(id);
-//        System.out.println("\n==Task Deleted Successfully==\n");
-//
-//
-//    }
+    public static void deleteTask(int id) {
+        try {
+            Statement statement = connection.createStatement();
+            String deleteQuery = String.format("delete from task where id = %d",id);
+            int rowsAffected = statement.executeUpdate(deleteQuery);
+            if(rowsAffected > 0){
+                System.out.println("\n==Task Deleted Successfully==\n");
+            }else {
+                System.out.printf("\nTask with id : %d does not exist",id);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
+    public static void editTask() {
+
+        try {
+            System.out.print("Enter task id :");
+            int id = in.nextInt();
+            in.nextLine();
+            Statement statement = connection.createStatement();
+            String fetchQuery = String.format("select description from task where id = %d", id);
+            ResultSet resultSet = statement.executeQuery(fetchQuery);
+            if(!resultSet.next()){
+                System.out.printf("\nTask with id : %d does not exist",id);
+                return;
+            }
+
+            String description = resultSet.getString("description");
+            System.out.printf("\nCurrent description : \"%s\"\n",description);
+
+            System.out.print("Enter new description : ");
+            String newDesciption = in.nextLine();
+
+
+            String updateQuery = String.format("update task set description = \"%s\" where id = %d",newDesciption, id);
+            statement.executeUpdate(updateQuery);
+            System.out.println("Description changed successfully");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void searchByKeyword() {
+        System.out.print("Enter Keyword : ");
+        String keyword = in.nextLine();
+        String fetchQuery = String.format("select * from task where description like \"%%%s%%\"",keyword);
+
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(fetchQuery);
+            if(!resultSet.next()){
+                System.out.printf("\nNo task with keyword \"%s\" is present", keyword);
+                return;
+            }
+            do {
+                System.out.printf("\nid : %d | description : \"%s\" | status : %s\n",
+                        resultSet.getInt("id"),
+                        resultSet.getString("description"),
+                        resultSet.getString("status")
+                        );
+            }while (resultSet.next());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
+
 //    private  static boolean isValidId(int id){
 //        if (taskMap.containsKey(id)) {
 //            return true;

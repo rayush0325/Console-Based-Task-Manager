@@ -13,8 +13,10 @@ public class App {
                 "\n=== Menu ===\n"+
                 "1. View Task\n" +
                 "2. Add task\n" +
-                "3. Mark Task Completed\n" +
-                "4. Delete Task" +
+                "3. Change Task Status\n" +
+                "4. Delete Task\n" +
+                "5. Edit Task\n" +
+                "6. Search Tasks By Keyword\n" +
                 "==============\n";
 
 
@@ -33,10 +35,15 @@ public class App {
                     addTask();
                     break;
                 case 3:
-                    markTaskCompleted();
+                    Task.changeTaskStatus();
                     break;
                 case 4:
-//                    deleteTask();
+                    deleteTask();
+                    break;
+                case 5:
+                    Task.editTask();
+                    break;
+                case 6 : Task.searchByKeyword();
                     break;
 
             }
@@ -49,19 +56,16 @@ public class App {
 
     }
 
-//    private static void deleteTask() {
-//        System.out.print("Enter Task Id : ");
-//        int id = in.nextInt();
-//        in.nextLine();
-//        Task.deleteTask(id);
-//    }
 
-    private static void markTaskCompleted() {
+
+    private static void deleteTask() {
         System.out.print("Enter Task Id : ");
         int id = in.nextInt();
         in.nextLine();
-        Task.markTaskCompleted(id);
+        Task.deleteTask(id);
     }
+
+
 
     private static void addTask() {
         System.out.println("Enter task description : ");
