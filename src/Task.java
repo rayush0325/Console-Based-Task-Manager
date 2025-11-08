@@ -1,5 +1,9 @@
 import java.io.*;
 import java.sql.*;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Task {
@@ -28,10 +32,16 @@ public class Task {
     boolean status;
 
     public static void addTask(String description){
-        String insertQuery = String.format("insert into task (description) values (\"%s\");", description);
+        LocalDateTime localDateTime = LocalDateTime.now();
+        Timestamp timestamp = Timestamp.valueOf(localDateTime);
+//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yy hh-mm-ss a");
+        String insertQuery = String.format("insert into task (description, creation_date) values (?,?);");
         try {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(insertQuery);
+            PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
+
+            preparedStatement.setString(1,description);
+            preparedStatement.setTimestamp(2, timestamp);
+            preparedStatement.executeUpdate();
             System.out.println("==Task Added Successfully==");
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -42,7 +52,11 @@ public class Task {
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(viewQuery);
-            while (resultSet.next()){
+            if(!resultSet.next()){
+                System.out.println("No task to display");
+                return;
+            }
+            do{
                 System.out.println(
                         String.format(
                                 "Id : %d | Desc : %s | Status : %s",
@@ -52,7 +66,7 @@ public class Task {
 
                         )
                 );
-            }
+            }while (resultSet.next());
         }catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -78,6 +92,7 @@ public class Task {
             in.nextLine();
             Statement statement = connection.createStatement();
             String fetchQuery = String.format("select status from task where id = %d", id);
+
             ResultSet resultSet = statement.executeQuery(fetchQuery);
             if(!resultSet.next()){
                 System.out.printf("\n Task with id : %d does not exist",id);
@@ -170,6 +185,96 @@ public class Task {
         }
 
 
+    }
+
+    public static void setDueDate() {
+        System.out.print("Enter task id :");
+        int id = in.nextInt();
+        in.nextLine();
+        System.out.print("Enter due date (dd-MM-YY) : ");
+        String dueDate = in.nextLine();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate localDate = LocalDate.parse(dueDate,dateTimeFormatter);
+        Date date = Date.valueOf(localDate);
+
+        String updateQuery = "update  task set due_date = ? where id = ?";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);
+            preparedStatement.setDate(1,date);
+            preparedStatement.setInt(2,id);
+            int rowsAffected = preparedStatement.executeUpdate();
+            if(rowsAffected > 0){
+                System.out.println("Due date set successfully");
+            }
+            else{
+                System.out.printf("Task id : %d does not exist", id);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void filterTasksByStatus() {
+        System.out.print(
+                "Choose filter type\n" +
+                "1. Completed\n" +
+                "2. Pending\n" +
+                "Enter choice : "
+
+        );
+        int choice = in.nextInt();
+        in.nextLine();
+        String status = (choice == 1) ? "Completed" : "Pending";
+        String fetchQuery = String.format("Select id, description from task where status =  \"%s\"",status);
+        try{
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(fetchQuery);
+            if(!resultSet.next()){
+                System.out.printf("No task %s", status);
+                return;
+            }
+            do{
+                System.out.printf("id : %d | description : \"%s\"\n",
+                        resultSet.getInt("id"), resultSet.getString("description"));
+            }while (resultSet.next());
+
+
+        }catch (SQLException exception){
+            System.out.println(exception.getMessage());
+        }
+    }
+
+    public static void viewTaskDetails() {
+        System.out.print("Enter task id : ");
+        int id = in.nextInt();
+        in.nextLine();
+        String fetchQuery = String.format("Select * from task where id = %d",id);
+        try{
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(fetchQuery);
+            if(!resultSet.next()){
+                System.out.printf("\nTask with id : %d does not exist",id);
+                return;
+            }
+            String output = String.format(
+                                """
+                                ---Task Details ---
+                                1. Id : %d
+                                2. Description : %s
+                                3. Created On : %tD
+                                4. Due Date : %tD
+                                5. Status : %s
+                            """,
+                    resultSet.getInt("id"),
+                    resultSet.getString("description"),
+                    resultSet.getDate("creation_date"),
+                    resultSet.getDate("due_date"),
+                    resultSet.getString("status")
+            );
+            System.out.println(output);
+        }catch (SQLException exception){
+            System.out.println(exception.getMessage());
+        }
     }
 
 

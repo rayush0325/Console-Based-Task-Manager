@@ -17,6 +17,9 @@ public class App {
                 "4. Delete Task\n" +
                 "5. Edit Task\n" +
                 "6. Search Tasks By Keyword\n" +
+                "7. Set Due Date\n" +
+                "8. Filter task By Status\n" +
+                "9. View Task Details\n" +
                 "==============\n";
 
 
@@ -45,7 +48,12 @@ public class App {
                     break;
                 case 6 : Task.searchByKeyword();
                     break;
-
+                case 7 : Task.setDueDate();
+                    break;
+                case 8 : Task.filterTasksByStatus();
+                    break;
+                case 9 : Task.viewTaskDetails();
+                    break;
             }
             System.out.println(menu);
             System.out.print("Your Option : ");
@@ -91,5 +99,5 @@ public class App {
 //using scanner in app class
 //handle wrong input by user
 //what about making getIdFromUser function which will check if given id is present or not
-
+//check for valid due date
 
